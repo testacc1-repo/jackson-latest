@@ -1,0 +1,5 @@
+name: custom/java
+version: 0.0.1
+dependencies:
+  codeql/java-all: "*"
+description: "A custom CodeQL pack for Crypto Artificats in Java Source Code analysis."
