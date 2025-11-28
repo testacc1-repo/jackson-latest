@@ -1,0 +1,31 @@
+on:
+  workflow_dispatch:
+
+jobs:
+  cbom-scan:
+    runs-on: ubuntu-latest
+    name: CBOM generation
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Build with Maven
+        # When scanning Java code, the build should be completed beforehand
+        run: mvn -B clean package -DskipTests
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create CBOM
+        uses: cbomkit/cbomkit-action@v2.1.1
+        id: cbom
+        env:
+          CBOMKIT_LANGUAGES: java, python # or java or python
+      - name: Commit changes to new branch
+        # Allows persisting the CBOMs after job completion and
+        # sharing them with another job in the same workflow.
+        uses: actions/upload-artifact@v4
+        with: 
+          name: "CBOM"
+          path: ${{ steps.cbom.outputs.pattern }}
+          if-no-files-found: warn 
